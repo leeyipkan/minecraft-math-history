@@ -72,7 +72,7 @@ test('Level Data', (g) => {
   assert(lv.emoji === '🏜️', 'Level 1 has emoji')
   assert(lv.npc === '👑', 'Level 1 has NPC')
   assert(typeof lv.npcText === 'string', 'Level 1 has NPC dialog')
-  assert(typeof lv.npcText2 === 'string', 'Level 1 has NPC dialog 2')
+  assert(typeof lv.npcText2 === 'undefined', 'Level 1 no longer has second dialog (removed for iOS fix)')
   assert(typeof lv.rewardDiamonds === 'number', 'Level 1 has reward amount')
   assert(lv.rewardDiamonds > 0, 'Reward is positive')
   assert(Array.isArray(QUESTION_GENERATORS), 'QUESTION_GENERATORS exists')
