@@ -73,15 +73,18 @@ test('Level Data', (g) => {
   assert(lv.npc === '👑', 'Level 1 has NPC')
   assert(typeof lv.npcText === 'string', 'Level 1 has NPC dialog')
   assert(typeof lv.npcText2 === 'string', 'Level 1 has NPC dialog 2')
-  assert(Array.isArray(lv.questions), 'Level 1 has questions')
-  assert(lv.questions.length === 3, 'Level 1 has 3 questions')
   assert(typeof lv.rewardDiamonds === 'number', 'Level 1 has reward amount')
   assert(lv.rewardDiamonds > 0, 'Reward is positive')
+  assert(Array.isArray(QUESTION_GENERATORS), 'QUESTION_GENERATORS exists')
+  assert(QUESTION_GENERATORS.length >= 5, 'At least 5 question generators')
 })
 
-// 3. Question Structure
-test('Question Structure', (g) => {
-  const qs = LEVELS[0].questions
+// 3. Question Generator Functions
+test('Question Generators', (g) => {
+  assert(typeof generateQuestions === 'function', 'generateQuestions function exists')
+  const qs = generateQuestions(5)
+  assert(Array.isArray(qs), 'generateQuestions returns array')
+  assert(qs.length === 5, 'generateQuestions(5) returns 5 questions')
   qs.forEach((q, i) => {
     assert(typeof q.q === 'string', `Q${i+1}: question text exists`)
     assert(typeof q.hint === 'string', `Q${i+1}: hint exists`)
@@ -93,7 +96,18 @@ test('Question Structure', (g) => {
   })
 })
 
-// 4. Save/Load
+// 4. Options Generator
+test('Options Generator', (g) => {
+  assert(typeof generateOptions === 'function', 'generateOptions function exists')
+  const opts = generateOptions(10, 4)
+  assert(opts.length === 4, 'generateOptions returns 4 options')
+  assert(opts.includes('10'), 'Correct answer is in options')
+  opts.forEach(o => {
+    assert(!isNaN(parseInt(o)), `Option "${o}" is a number string`)
+  })
+})
+
+// 5. Save/Load
 test('Save & Load System', (g) => {
   // Save current state
   const orig = { diamonds: STATE.diamonds, stars: [...STATE.levelStars], blocks: [...STATE.baseBlocks] }
@@ -124,7 +138,7 @@ test('Save & Load System', (g) => {
   assert(true, 'Original state restored')
 })
 
-// 5. Audio System
+// 6. Audio System
 test('Audio System', (g) => {
   assert(typeof playTone === 'function', 'playTone function exists')
   assert(typeof sfxCorrect === 'function', 'sfxCorrect function exists')
@@ -135,7 +149,7 @@ test('Audio System', (g) => {
   assert(typeof initAudio === 'function', 'initAudio function exists')
 })
 
-// 6. Screen Management
+// 7. Screen Management
 test('Screen Management', (g) => {
   assert(typeof showScreen === 'function', 'showScreen function exists')
   const screens = ['title','base','dialog','level','chest','complete']
@@ -150,7 +164,7 @@ test('Screen Management', (g) => {
   assert(!document.getElementById('screen-base').classList.contains('active'), 'Base screen deactivated')
 })
 
-// 7. Pyramid Builder
+// 8. Pyramid Builder
 test('Pyramid Builder', (g) => {
   assert(typeof buildPyramid === 'function', 'buildPyramid function exists')
   buildPyramid(4)
@@ -166,7 +180,7 @@ test('Pyramid Builder', (g) => {
   assert(document.getElementById('missingBlock') !== null, 'missingBlock element exists')
 })
 
-// 8. Base Blocks Grid
+// 9. Base Blocks Grid
 test('Base Blocks Grid', (g) => {
   const grid = document.getElementById('baseGrid')
   assert(grid !== null, 'base grid element exists')
@@ -185,7 +199,7 @@ test('Base Blocks Grid', (g) => {
   assert(diamonds2.length === 4, 'Added 1 more diamond block')
 })
 
-// 9. Answer Buttons
+// 10. Answer Buttons
 test('Answer Buttons', (g) => {
   // Render answer buttons manually
   const grid = document.getElementById('answerGrid')
@@ -206,7 +220,7 @@ test('Answer Buttons', (g) => {
   assert(btns[2].classList.contains('selected'), 'Click adds selected class')
 })
 
-// 10. Diamond Count Display
+// 11. Diamond Count Display
 test('Diamond Display', (g) => {
   const count = document.getElementById('diamondCount')
   STATE.diamonds = 100

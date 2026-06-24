@@ -277,13 +277,106 @@ const LEVELS = [{
   npc: '👑',
   npcText: '救命啊！風暴吹垮咗我嘅金字塔！😱 幫我用數學修好佢，我會送你鑽石做獎勵！',
   npcText2: '你真係個勇敢嘅小建築師！快啲開始啦！',
-  questions: [
-    { q: '金字塔底層缺咗幾多塊磚？', hint: '數一數，最底嗰行唔見咗幾多塊？', answer: '1', options: ['1','2','3','4'], stars: 1 },
-    { q: '2 + 3 = ?', hint: '兩塊磚加三塊磚等於幾多？', answer: '5', options: ['4','5','6','7'], stars: 1 },
-    { q: '邊個數字比 4 大但比 6 細？', hint: '4 ... ? ... 6', answer: '5', options: ['3','5','7','8'], stars: 1 },
-  ],
   rewardDiamonds: 3,
+  // Questions are auto-generated when level starts
+  questions: [],
 }]
+
+// ===== QUESTION GENERATORS =====
+// Each returns { q, hint, answer, options, stars }
+// Generators are shuffled and picked randomly each session
+
+function generateOptions(correct, count) {
+  const opts = new Set([correct])
+  while(opts.size < count) {
+    const offset = 1 + Math.floor(Math.random() * 4)
+    if(Math.random() < 0.5) {
+      opts.add(correct + offset)
+    } else {
+      opts.add(Math.max(0, correct - offset))
+    }
+  }
+  return [...opts].sort(()=>Math.random()-0.5).map(String)
+}
+
+const QUESTION_GENERATORS = [
+
+  // 1️⃣ 數磚題：底層 + 第二層
+  function genCountBricks() {
+    // Pyramid 4 rows: 1+2+3+4
+    const bottom = 4, second = 3, total = bottom + second
+    return {
+      q: '金字塔最底兩行總共有幾多塊磚？',
+      hint: `數一數：最底嗰行（${bottom}塊）加埋上面嗰行（${second}塊）`,
+      answer: String(total),
+      options: ['5','6','7','8'],
+      stars: 1,
+    }
+  },
+
+  // 2️⃣ 鑽石文字題（隨機數字）
+  function genDiamondWord() {
+    const total = 8 + Math.floor(Math.random() * 8) // 8~15
+    const given = 2 + Math.floor(Math.random() * Math.max(1, total - 5)) // 2~(total-3)
+    const ans = total - given
+    return {
+      q: `法老王有 ${total} 粒鑽石，俾咗 ${given} 粒俾你，佢仲有幾多粒？`,
+      hint: `${total} 減 ${given} 係幾多？`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 1,
+    }
+  },
+
+  // 3️⃣ 進位加法（隨機）
+  function genAddition() {
+    const a = 5 + Math.floor(Math.random() * 6) // 5~10
+    const b = 3 + Math.floor(Math.random() * 7) // 3~9
+    const ans = a + b
+    return {
+      q: `${a} + ${b} = ?`,
+      hint: `${a} 加 ${b} 係幾多？可以數手指幫手！`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 1,
+    }
+  },
+
+  // 4️⃣ 減法題（隨機）
+  function genSubtraction() {
+    const a = 9 + Math.floor(Math.random() * 9) // 9~17
+    const b = 2 + Math.floor(Math.random() * 7) // 2~8
+    const ans = a - b
+    return {
+      q: `${a} - ${b} = ?`,
+      hint: `${a} 減 ${b}，答案係？`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 1,
+    }
+  },
+
+  // 5️⃣ 兩步題（加減混合，隨機）
+  function genTwoStep() {
+    const a = 4 + Math.floor(Math.random() * 7)  // 4~10
+    const b = 2 + Math.floor(Math.random() * 5)  // 2~6
+    const c = 1 + Math.floor(Math.random() * 5)  // 1~5
+    const ans = a + b - c
+    return {
+      q: `${a} + ${b} - ${c} = ?`,
+      hint: `計咗 ${a}+${b} 先，再減 ${c}`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 1,
+    }
+  },
+]
+
+function generateQuestions(count = 5) {
+  // Shuffle generators, pick 'count', run each
+  const shuffled = [...QUESTION_GENERATORS].sort(()=>Math.random()-0.5)
+  return shuffled.slice(0, count).map(fn => fn())
+}
 
 // ===== PYRAMID LAYOUT =====
 function buildPyramid(rows=4) {
@@ -445,6 +538,9 @@ function showDialog(text, npc, callback) {
 function startLevel(levelIdx) {
   STATE.currentLevel = levelIdx
   STATE.currentQuestion = 0
+  // Generate fresh set of random questions each time
+  const level = LEVELS[levelIdx]
+  level.questions = generateQuestions(5)
   showQuestion(levelIdx, 0)
 }
 
