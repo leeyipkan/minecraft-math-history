@@ -276,7 +276,6 @@ const LEVELS = [{
   emoji: '🏜️',
   npc: '👑',
   npcText: '救命啊！風暴吹垮咗我嘅金字塔！😱 幫我用數學修好佢，我會送你鑽石做獎勵！',
-  npcText2: '你真係個勇敢嘅小建築師！快啲開始啦！',
   rewardDiamonds: 3,
   // Questions are auto-generated when level starts
   questions: [],
@@ -694,18 +693,10 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('base')
   })
   
-  // Base → Egypt dialog
+  // Base → Egypt level (skip intermediate dialogs to avoid iOS issues)
   document.getElementById('btnEgypt').addEventListener('click', () => {
     sfxClick()
-    const level = LEVELS[0]
-    showDialog(level.npcText, level.npc, () => {
-      // Defer second dialog to avoid re-entrancy issues on iOS
-      setTimeout(() => {
-        showDialog(level.npcText2, level.npc, () => {
-          startLevel(0)
-        })
-      }, 50)
-    })
+    startLevel(0)
   })
   
   // Complete → Base
