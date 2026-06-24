@@ -158,7 +158,7 @@ test('Pyramid Builder', (g) => {
   const rows = wrap.querySelectorAll('.pyramid-row')
   assert(rows.length === 4, 'Pyramid has 4 rows')
   const blocks = wrap.querySelectorAll('.pyramid-block')
-  assert(blocks.length === 10, 'Pyramid has 10 blocks total (4+3+2+1)')
+  assert(blocks.length === 10, 'Pyramid has 10 blocks total (1+2+3+4)')
   const filled = wrap.querySelectorAll('.pyramid-block.filled')
   assert(filled.length === 9, '9 filled blocks')
   const missing = wrap.querySelectorAll('.pyramid-block.missing')

@@ -225,15 +225,15 @@ function buildPyramid(rows=4) {
   for(let r=0; r<rows; r++) {
     const row = document.createElement('div')
     row.className = 'pyramid-row'
-    const blocks = rows - r
+    const blocks = r + 1
     for(let b=0; b<blocks; b++) {
       const block = document.createElement('div')
       block.className = 'pyramid-block'
       block.dataset.row = r
       block.dataset.col = b
       
-      // Determine if this block is the missing one
-      const isMissing = (r === 0 && b === Math.floor(blocks/2)) // center of bottom row
+      // Determine if this block is the missing one (center of bottom row)
+      const isMissing = (r === rows-1 && b === Math.floor(blocks/2))
       if(isMissing) {
         block.classList.add('missing')
         block.textContent = '❓'
@@ -405,11 +405,9 @@ function showQuestion(levelIdx, qIdx) {
 
 function handleAnswer(selected, correct, levelIdx, qIdx) {
   const btns = document.querySelectorAll('.answer-btn')
-  let found = false
   btns.forEach(b => {
     if(b.textContent === selected) {
       b.classList.add('selected')
-      found = true
     }
   })
   
