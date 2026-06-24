@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head><meta charset="UTF-8"><title>測試 — Minecraft 數學歷史</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:monospace;background:#1a1a2e;color:#eee;padding:16px;max-width:800px;margin:0 auto}
+h1{color:#e2b714;margin-bottom:12px;text-align:center;font-size:24px}
+.test-group{border:1px solid #333;border-radius:8px;padding:12px;margin:8px 0}
+.test-group h2{font-size:16px;color:#88ddff;margin-bottom:6px}
+.test{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #222;font-size:13px}
+.test:last-child{border:none}
+.pass{color:#4c4}
+.fail{color:#f44}
+.summary{text-align:center;font-size:18px;margin:16px 0;padding:12px;border-radius:8px}
+.pass-all{background:#1a3a1a;border:2px solid #4c4}
+.fail-any{background:#3a1a1a;border:2px solid #f44}
+</style>
+</head>
+<body>
+<h1>🧪 Minecraft 數學歷史 — 測試套件</h1>
+<div id="summary" class="summary">Running tests...</div>
+<div id="results"></div>
+
+<script>
+const results = document.getElementById('results')
+const summary = document.getElementById('summary')
+let passCount = 0, failCount = 0, totalTests = 0
+
+function test(name, fn) {
+  totalTests++
+  const group = document.createElement('div')
+  group.className = 'test-group'
+  group.innerHTML = `<h2>🧪 ${name}</h2>`
+  results.appendChild(group)
+  try {
+    fn(group)
+    passCount++
+  } catch(e) {
+    failCount++
+    group.innerHTML += `<div class="test"><span class="fail">❌ ${e.message}</span></div>`
+  }
+}
+
+function assert(condition, msg) {
+  const group = results.lastChild
+  if(condition) {
+    group.innerHTML += `<div class="test"><span class="pass">✅ ${msg}</span></div>`
+  } else {
+    throw new Error(msg)
+  }
+}
+
+// ====== TESTS ======
+
+// 1. Game State
+test('Game State Management', (g) => {
+  assert(typeof STATE !== 'undefined', 'STATE object exists')
+  assert(typeof STATE.diamonds !== 'undefined', 'diamonds counter exists')
+  assert(typeof STATE.levelStars !== 'undefined', 'levelStars array exists')
+  assert(Array.isArray(STATE.levelStars), 'levelStars is array')
+  assert(STATE.levelStars.length === 3, 'levelStars has 3 slots')
+  assert(typeof STATE.currentQuestion !== 'undefined', 'currentQuestion exists')
+  assert(typeof STATE.currentLevel !== 'undefined', 'currentLevel exists')
+})
+
+// 2. Levels Data
+test('Level Data', (g) => {
+  assert(Array.isArray(LEVELS), 'LEVELS is array')
+  assert(LEVELS.length > 0, 'At least 1 level defined')
+  const lv = LEVELS[0]
+  assert(lv.name === '古埃及金字塔', 'Level 1 name is correct')
+  assert(lv.emoji === '🏜️', 'Level 1 has emoji')
+  assert(lv.npc === '👑', 'Level 1 has NPC')
+  assert(typeof lv.npcText === 'string', 'Level 1 has NPC dialog')
+  assert(typeof lv.npcText2 === 'string', 'Level 1 has NPC dialog 2')
+  assert(Array.isArray(lv.questions), 'Level 1 has questions')
+  assert(lv.questions.length === 3, 'Level 1 has 3 questions')
+  assert(typeof lv.rewardDiamonds === 'number', 'Level 1 has reward amount')
+  assert(lv.rewardDiamonds > 0, 'Reward is positive')
+})
+
+// 3. Question Structure
+test('Question Structure', (g) => {
+  const qs = LEVELS[0].questions
+  qs.forEach((q, i) => {
+    assert(typeof q.q === 'string', `Q${i+1}: question text exists`)
+    assert(typeof q.hint === 'string', `Q${i+1}: hint exists`)
+    assert(typeof q.answer === 'string', `Q${i+1}: answer exists`)
+    assert(Array.isArray(q.options), `Q${i+1}: options is array`)
+    assert(q.options.length === 4, `Q${i+1}: has 4 options`)
+    assert(q.options.includes(q.answer), `Q${i+1}: correct answer is in options`)
+    assert(typeof q.stars === 'number', `Q${i+1}: stars value exists`)
+  })
+})
+
+// 4. Save/Load
+test('Save & Load System', (g) => {
+  // Save current state
+  const orig = { diamonds: STATE.diamonds, stars: [...STATE.levelStars], blocks: [...STATE.baseBlocks] }
+  
+  // Set test values
+  STATE.diamonds = 42
+  STATE.levelStars = [3,0,0]
+  STATE.baseBlocks = [0,1,2,3,4]
+  saveGame()
+  
+  // Reset
+  STATE.diamonds = 0
+  STATE.levelStars = [0,0,0]
+  STATE.baseBlocks = []
+  
+  // Load
+  loadGame()
+  
+  assert(STATE.diamonds === 42, 'diamonds restored from localStorage')
+  assert(STATE.levelStars[0] === 3, 'stars restored from localStorage')
+  assert(STATE.baseBlocks.length === 5, 'base blocks restored from localStorage')
+  
+  // Restore original
+  STATE.diamonds = orig.diamonds
+  STATE.levelStars = orig.stars
+  STATE.baseBlocks = orig.blocks
+  saveGame()
+  assert(true, 'Original state restored')
+})
+
+// 5. Audio System
+test('Audio System', (g) => {
+  assert(typeof playTone === 'function', 'playTone function exists')
+  assert(typeof sfxCorrect === 'function', 'sfxCorrect function exists')
+  assert(typeof sfxWrong === 'function', 'sfxWrong function exists')
+  assert(typeof sfxClick === 'function', 'sfxClick function exists')
+  assert(typeof sfxChest === 'function', 'sfxChest function exists')
+  assert(typeof sfxComplete === 'function', 'sfxComplete function exists')
+  assert(typeof initAudio === 'function', 'initAudio function exists')
+})
+
+// 6. Screen Management
+test('Screen Management', (g) => {
+  assert(typeof showScreen === 'function', 'showScreen function exists')
+  const screens = ['title','base','dialog','level','chest','complete']
+  screens.forEach(id => {
+    const el = document.getElementById('screen-'+id)
+    assert(el !== null, `screen-${id} element exists`)
+  })
+  
+  // Test screen switch
+  showScreen('title')
+  assert(document.getElementById('screen-title').classList.contains('active'), 'Title screen activated')
+  assert(!document.getElementById('screen-base').classList.contains('active'), 'Base screen deactivated')
+})
+
+// 7. Pyramid Builder
+test('Pyramid Builder', (g) => {
+  assert(typeof buildPyramid === 'function', 'buildPyramid function exists')
+  buildPyramid(4)
+  const wrap = document.getElementById('pyramidWrap')
+  const rows = wrap.querySelectorAll('.pyramid-row')
+  assert(rows.length === 4, 'Pyramid has 4 rows')
+  const blocks = wrap.querySelectorAll('.pyramid-block')
+  assert(blocks.length === 10, 'Pyramid has 10 blocks total (4+3+2+1)')
+  const filled = wrap.querySelectorAll('.pyramid-block.filled')
+  assert(filled.length === 9, '9 filled blocks')
+  const missing = wrap.querySelectorAll('.pyramid-block.missing')
+  assert(missing.length === 1, '1 missing block')
+  assert(document.getElementById('missingBlock') !== null, 'missingBlock element exists')
+})
+
+// 8. Base Blocks Grid
+test('Base Blocks Grid', (g) => {
+  const grid = document.getElementById('baseGrid')
+  assert(grid !== null, 'base grid element exists')
+  
+  // Test render
+  STATE.baseBlocks = [0,5,10]
+  renderBase()
+  const blocks = grid.querySelectorAll('.base-block')
+  assert(blocks.length === 40, 'Base grid has 40 blocks')
+  const diamonds = grid.querySelectorAll('.base-block.diamond')
+  assert(diamonds.length === 3, '3 diamond blocks rendered')
+  
+  // Test adding
+  addDiamondToBase()
+  const diamonds2 = grid.querySelectorAll('.base-block.diamond')
+  assert(diamonds2.length === 4, 'Added 1 more diamond block')
+})
+
+// 9. Answer Buttons
+test('Answer Buttons', (g) => {
+  // Render answer buttons manually
+  const grid = document.getElementById('answerGrid')
+  grid.innerHTML = ''
+  const opts = ['2','3','4','5']
+  opts.forEach(o => {
+    const btn = document.createElement('button')
+    btn.className = 'answer-btn'
+    btn.textContent = o
+    grid.appendChild(btn)
+  })
+  const btns = grid.querySelectorAll('.answer-btn')
+  assert(btns.length === 4, '4 answer buttons rendered')
+  assert(btns[0].textContent === '2', 'Button text is correct')
+  
+  // Test click adds class
+  btns[2].click()
+  assert(btns[2].classList.contains('selected'), 'Click adds selected class')
+})
+
+// 10. Diamond Count Display
+test('Diamond Display', (g) => {
+  const count = document.getElementById('diamondCount')
+  STATE.diamonds = 100
+  renderBase()
+  assert(count.textContent === '100', 'Diamond count displays 100')
+  STATE.diamonds = 0
+  renderBase()
+  assert(count.textContent === '0', 'Diamond count displays 0')
+})
+
+// ====== SUMMARY ======
+const allPass = failCount === 0
+summary.textContent = `✅ ${passCount}/${totalTests} 測試通過` + (allPass ? ' 🎉 全部通過！' : ` ❌ ${failCount} 個失敗`)
+summary.className = 'summary ' + (allPass ? 'pass-all' : 'fail-any')
+
+console.log(`🧪 測試完成: ${passCount}/${totalTests} 通過`)
+</script>
+</body>
+</html>
