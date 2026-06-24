@@ -531,6 +531,8 @@ function showDialog(text, npc, callback) {
     sfxClick()
     if(callback) callback()
   }, {once: true})
+  // Only switch to dialog screen if not already showing
+  if(document.getElementById('screen-dialog').classList.contains('active')) return
   showScreen('dialog')
 }
 
