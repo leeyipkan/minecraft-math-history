@@ -535,7 +535,10 @@ function handleAnswer(selected, correct, levelIdx, qIdx) {
     
     setTimeout(() => {
       fb.classList.remove('show')
-      btns.forEach(b => b.classList.remove('selected'))
+      btns.forEach(b => {
+        b.classList.remove('selected')
+        b.style.pointerEvents = ''  // Re-enable buttons!
+      })
     }, 1000)
   }
 }
