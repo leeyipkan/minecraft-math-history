@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<title>Minecraft 數學歷史</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:'Segoe UI',Arial,sans-serif;touch-action:manipulation}
+
+/* ===== SCREENS ===== */
+.screen{display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center}
+.screen.active{display:flex}
+
+/* ===== TITLE SCREEN ===== */
+#screen-title{background:linear-gradient(180deg,#0f0c29,#302b63,#24243e)}
+.title-icon{font-size:clamp(48px,12vw,96px);margin-bottom:8px}
+.title-h1{font-size:clamp(28px,7vw,52px);color:#e2b714;text-shadow:3px 3px 0 #8b6914,0 0 20px rgba(226,183,20,.3);font-weight:900;letter-spacing:2px;text-align:center}
+.title-h2{font-size:clamp(14px,3.5vw,24px);color:#aaa;margin:4px 0 20px}
+.btn-start{font-size:clamp(22px,5vw,36px);padding:clamp(12px,3vw,20px) clamp(32px,8vw,60px);background:linear-gradient(180deg,#5c9e5c,#3d7a3d);color:#fff;border:4px solid #2d5a2d;border-radius:16px;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #2d5a2d;transition:.1s;letter-spacing:2px}
+.btn-start:active{transform:translateY(4px);box-shadow:0 2px 0 #2d5a2d}
+
+/* ===== SECRET BASE ===== */
+#screen-base{background:linear-gradient(180deg,#2d1b0e,#1a0f07);padding:16px}
+.base-title{font-size:clamp(20px,5vw,36px);color:#e2b714;margin-bottom:4px;text-shadow:2px 2px 0 #8b6914}
+.base-sub{font-size:clamp(12px,2.5vw,18px);color:#8b8;margin-bottom:12px}
+.diamond-row{display:flex;align-items:center;gap:8px;font-size:clamp(28px,6vw,48px);margin-bottom:8px}
+.diamond-count{color:#88ddff;font-weight:900;font-size:clamp(24px,5vw,40px)}
+.base-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;width:min(90vw,400px);aspect-ratio:8/5;background:#3d2817;border:4px solid #5c3a1e;border-radius:8px;padding:4px;margin:8px 0}
+.base-block{aspect-ratio:1;border-radius:2px;transition:.3s;cursor:default;position:relative}
+.base-block.empty{background:#2d1b0e;border:1px solid #3d2817}
+.base-block.diamond{background:linear-gradient(135deg,#88ddff,#44aadd);border:1px solid #aae;box-shadow:inset 0 0 8px rgba(136,221,255,.5),0 0 4px rgba(136,221,255,.3)}
+.base-level-btn{display:flex;align-items:center;gap:12px;font-size:clamp(16px,4vw,28px);padding:clamp(10px,2.5vw,18px) clamp(20px,5vw,40px);background:linear-gradient(180deg,#d4a030,#b8860b);color:#fff;border:3px solid #8b6914;border-radius:12px;cursor:pointer;margin-top:8px;font-weight:700;box-shadow:0 4px 0 #8b6914;transition:.1s}
+.base-level-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #8b6914}
+.base-level-btn.locked{background:#555;border-color:#333;box-shadow:0 4px 0 #333;opacity:.6;pointer-events:none}
+
+/* ===== DIALOG ===== */
+#screen-dialog{background:rgba(0,0,0,.85)}
+.dialog-box{background:linear-gradient(180deg,#f5e6c8,#e8d5a8);border:4px solid #c4a86a;border-radius:16px;padding:clamp(16px,4vw,32px);width:min(88vw,500px);position:relative}
+.dialog-npc{font-size:clamp(48px,10vw,80px);text-align:center;margin-bottom:4px}
+.dialog-text{font-size:clamp(16px,4vw,24px);color:#3d2817;line-height:1.5;text-align:center;margin:8px 0}
+.dialog-btn{font-size:clamp(18px,4.5vw,28px);padding:clamp(10px,2.5vw,16px) clamp(24px,6vw,48px);background:linear-gradient(180deg,#5c9e5c,#3d7a3d);color:#fff;border:3px solid #2d5a2d;border-radius:12px;cursor:pointer;font-weight:700;box-shadow:0 4px 0 #2d5a2d;transition:.1s;margin-top:12px}
+.dialog-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #2d5a2d}
+
+/* ===== LEVEL SCREEN ===== */
+#screen-level{background:linear-gradient(180deg,#87ceeb,#f0d8a0 40%,#d4a030 70%,#b8860b);padding:8px}
+.level-header{display:flex;justify-content:space-between;align-items:center;width:min(95vw,600px);padding:4px 8px;margin-bottom:4px}
+.level-info{font-size:clamp(12px,3vw,20px);color:#3d2817;font-weight:700}
+.level-stars{font-size:clamp(16px,4vw,28px)}
+
+/* Pyramid */
+.pyramid-wrap{display:flex;flex-direction:column;align-items:center;margin:4px 0}
+.pyramid-row{display:flex;justify-content:center}
+.pyramid-block{width:clamp(36px,8vw,60px);height:clamp(36px,8vw,60px);margin:1px;display:flex;align-items:center;justify-content:center;font-size:clamp(14px,3vw,24px);font-weight:900;border-radius:4px;transition:.3s}
+.pyramid-block.filled{background:linear-gradient(135deg,#e8c36a,#c4a050);border:2px solid #a08030;color:#5c3a1e;box-shadow:inset 0 2px 4px rgba(255,255,200,.4)}
+.pyramid-block.missing{background:rgba(0,0,0,.3);border:3px dashed #ff6;cursor:pointer;color:#ff6;font-size:clamp(20px,5vw,40px);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+.pyramid-block.correct{background:linear-gradient(135deg,#6f6,#4a4)!important;border-color:#2d2!important;animation:pop .3s}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.pyramid-block.wrong{background:linear-gradient(135deg,#f66,#c33)!important;border-color:#a22!important;animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}
+
+/* Decorative - sun is placed in HTML */
+.pyramid-sun{position:absolute;top:10px;right:10px;font-size:clamp(24px,5vw,48px)}
+
+/* Question Area */
+.question-area{width:min(95vw,600px);margin:4px 0 8px;text-align:center}
+.question-label{font-size:clamp(18px,4.5vw,32px);color:#3d2817;font-weight:900;margin:4px 0}
+.question-hint{font-size:clamp(14px,3.5vw,22px);color:#5c3a1e;margin:2px 0;font-weight:700}
+.answer-grid{display:flex;justify-content:center;gap:clamp(8px,2vw,16px);flex-wrap:wrap;margin:4px 0}
+.answer-btn{width:clamp(56px,12vw,80px);height:clamp(56px,12vw,80px);font-size:clamp(24px,6vw,40px);font-weight:900;background:linear-gradient(135deg,#fff,#e8e8e8);border:3px solid #aaa;border-radius:12px;cursor:pointer;color:#333;transition:.15s;box-shadow:0 4px 0 #888}
+.answer-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #888}
+.answer-btn:hover{transform:translateY(-2px)}
+.answer-btn.selected{background:linear-gradient(135deg,#6f6,#4c4)!important;border-color:#2b2!important;transform:translateY(0)!important}
+
+/* Feedback overlay */
+.feedback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;z-index:10}
+.feedback.show{display:flex;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.feedback-box{background:rgba(0,0,0,.8);padding:clamp(20px,5vw,40px);border-radius:20px;text-align:center}
+.feedback-icon{font-size:clamp(64px,15vw,120px)}
+.feedback-text{font-size:clamp(24px,6vw,40px);color:#fff;font-weight:900;margin-top:8px}
+
+/* ===== CHEST SCREEN ===== */
+#screen-chest{background:rgba(0,0,0,.9)}
+.chest-anim{font-size:clamp(80px,20vw,160px);cursor:pointer;animation:float 1s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.chest-text{font-size:clamp(20px,5vw,36px);color:#e2b714;font-weight:900;margin-top:12px}
+.chest-sub{font-size:clamp(14px,3.5vw,22px);color:#aaa;margin-top:4px}
+.chest-diamonds{font-size:clamp(48px,12vw,96px);margin-top:12px}
+/* Diamond burst animation */
+.diamond-burst{position:absolute;pointer-events:none;font-size:clamp(20px,4vw,36px)}
+@keyframes burstOut{0%{opacity:1;transform:scale(0)}100%{opacity:0;transform:scale(3)translateY(-60px)}}
+
+/* ===== COMPLETE ===== */
+#screen-complete{background:linear-gradient(180deg,#1a1a2e,#16213e,#0f3460)}
+.complete-icon{font-size:clamp(48px,12vw,96px);margin-bottom:8px}
+.complete-title{font-size:clamp(24px,6vw,40px);color:#e2b714;font-weight:900;text-align:center}
+.complete-sub{font-size:clamp(14px,3.5vw,22px);color:#8b8;margin:8px 0 16px;text-align:center}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:480px){
+  .pyramid-block{width:clamp(28px,7vw,40px);height:clamp(28px,7vw,40px);font-size:clamp(10px,2.5vw,16px)}
+  .answer-btn{width:clamp(48px,12vw,64px);height:clamp(48px,12vw,64px);font-size:clamp(20px,5vw,32px)}
+}
+/* ===== LANDSCAPE OVERRIDES ===== */
+@media(orientation:landscape){
+  /* Make all screens top-aligned & scrollable */
+  .screen{justify-content:flex-start;overflow-y:auto;padding:4px 8px}
+  body{overflow-y:auto}
+
+  /* Title screen - compact */
+  #screen-title{padding:4px;gap:2px}
+  .title-icon{font-size:clamp(20px,5vh,40px);margin-bottom:0}
+  .title-h1{font-size:clamp(16px,4vh,28px)}
+  .title-h2{font-size:clamp(10px,2.5vh,16px);margin:0 0 6px}
+  .btn-start{font-size:clamp(12px,3vh,20px);padding:clamp(4px,1.5vh,10px) clamp(16px,4vw,36px)}
+
+  /* Base screen - compact */
+  #screen-base{padding:4px 8px}
+  .base-title{font-size:clamp(12px,2.8vh,20px);margin-bottom:0}
+  .base-sub{font-size:clamp(9px,2vh,13px);margin-bottom:2px}
+  .diamond-row{font-size:clamp(14px,3vh,22px);margin-bottom:2px;justify-content:center}
+  .diamond-count{font-size:clamp(14px,3vh,22px)}
+  .base-grid{width:min(45vw,300px);margin:2px 0;aspect-ratio:8/4}
+  .base-level-btn{font-size:clamp(11px,2.5vh,16px);padding:clamp(3px,1vh,8px) clamp(10px,2.5vw,20px);margin-top:2px}
+  #screen-base div:last-child{font-size:clamp(9px,2vh,12px)!important;margin-top:0}
+
+  /* Dialog - compact */
+  .dialog-box{padding:clamp(6px,1.5vh,14px);width:min(60vw,380px)}
+  .dialog-npc{font-size:clamp(24px,5vh,40px);margin-bottom:0}
+  .dialog-text{font-size:clamp(11px,2.5vh,17px);margin:3px 0}
+  .dialog-btn{font-size:clamp(12px,2.8vh,18px);padding:clamp(3px,1vh,8px) clamp(14px,3vw,28px);margin-top:4px}
+
+  /* Level screen - compact */
+  #screen-level{padding:2px 4px;gap:1px}
+  .level-header{margin-bottom:1px;width:min(85vw,500px)}
+  .level-info{font-size:clamp(9px,2vh,14px)}
+  .level-stars{font-size:clamp(10px,2.2vh,16px)}
+
+  /* Smaller pyramid */
+  .pyramid-wrap{margin:1px 0;flex-shrink:0}
+  .pyramid-block{width:clamp(16px,3.5vh,30px);height:clamp(16px,3.5vh,30px);font-size:clamp(8px,1.8vh,14px);margin:0 1px}
+  .pyramid-block.missing{font-size:clamp(12px,2.5vh,20px)}
+
+  /* Compact question area */
+  .question-area{margin:1px 0;width:min(85vw,500px);flex-shrink:0}
+  .question-label{font-size:clamp(12px,2.8vh,20px);margin:1px 0}
+  .question-hint{font-size:clamp(9px,2vh,14px);margin:0}
+  .answer-grid{gap:clamp(3px,0.8vh,6px);margin:2px 0}
+  .answer-btn{width:clamp(36px,7vh,50px);height:clamp(36px,7vh,50px);font-size:clamp(14px,3vh,24px);box-shadow:0 2px 0 #888}
+  .answer-btn:active{transform:translateY(1px);box-shadow:0 0 0 #888}
+
+  /* Decorative */
+  .pyramid-sun{font-size:clamp(14px,2.5vh,24px);top:4px;right:4px}
+  /* Feedback */
+  .feedback-box{padding:clamp(10px,2.5vh,24px)}
+  .feedback-icon{font-size:clamp(36px,8vh,64px)}
+  .feedback-text{font-size:clamp(14px,3.5vh,24px)}
+
+  /* Chest */
+  #screen-chest{gap:2px}
+  .chest-anim{font-size:clamp(36px,8vh,64px)}
+  .chest-text{font-size:clamp(12px,2.8vh,20px);margin-top:4px}
+  .chest-sub{font-size:clamp(9px,2vh,14px);margin-top:2px}
+  .chest-diamonds{font-size:clamp(24px,5vh,44px);margin-top:4px}
+
+  /* Complete */
+  #screen-complete{padding:4px;gap:2px}
+  .complete-icon{font-size:clamp(24px,5vh,44px);margin-bottom:2px}
+  .complete-title{font-size:clamp(14px,3.2vh,24px)}
+  .complete-sub{font-size:clamp(9px,2vh,14px);margin:2px 0 6px}
+}
+@media(orientation:portrait){
+  .rotate-hint{display:flex!important;pointer-events:none}
+}
+.rotate-hint{display:none;position:fixed;inset:0;background:#1a1a2e;z-index:999;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.rotate-hint-icon{font-size:80px;margin-bottom:16px}
+.rotate-hint-text{font-size:20px;color:#e2b714;font-weight:700;text-align:center;padding:0 20px}
+</style>
+</head>
+<body>
+
+<!-- ====== ROTATE HINT ====== -->
+<div class="rotate-hint" id="rotateHint">
+  <div class="rotate-hint-icon">📱↻</div>
+  <div class="rotate-hint-text">請打橫手機玩！</div>
+</div>
+
+<!-- ====== TITLE SCREEN ====== -->
+<div class="screen active" id="screen-title">
+  <div class="title-icon">⛏️</div>
+  <div class="title-h1">數學✕歷史</div>
+  <div class="title-h2">Minecraft 冒險之旅</div>
+  <button class="btn-start" id="btnStart">▶ 開始遊戲</button>
+</div>
+
+<!-- ====== SECRET BASE ====== -->
+<div class="screen" id="screen-base">
+  <div class="base-title">🏰 秘密基地</div>
+  <div class="base-sub">你嘅冒險基地</div>
+  <div class="diamond-row">
+    <span>💎</span>
+    <span class="diamond-count" id="diamondCount">0</span>
+    <span style="font-size:clamp(12px,2.5vw,18px);color:#8b8">粒鑽石</span>
+  </div>
+  <div class="base-grid" id="baseGrid"></div>
+  <button class="base-level-btn" id="btnEgypt">🏜️ 古埃及金字塔 ▶</button>
+  <div style="margin-top:6px;font-size:clamp(11px,2vw,16px);color:#666">仲有更多關卡即將推出！</div>
+</div>
+
+<!-- ====== DIALOG ====== -->
+<div class="screen" id="screen-dialog">
+  <div class="dialog-box">
+    <div class="dialog-npc" id="npcIcon">👑</div>
+    <div class="dialog-text" id="dialogText">...</div>
+    <div style="text-align:center">
+      <button class="dialog-btn" id="dialogBtn">繼續 ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== LEVEL (EGYPT) ====== -->
+<div class="screen" id="screen-level">
+  <div class="level-header">
+    <div class="level-info" id="levelInfo">🏜️ 第 1/3 題</div>
+    <div class="level-stars" id="levelStars">⭐⭐⭐</div>
+  </div>
+  <div class="pyramid-wrap" id="pyramidWrap"></div>
+  <div class="question-area">
+    <div class="question-label" id="questionLabel">❓</div>
+    <div class="question-hint" id="questionHint">揀出正確嘅數字方塊！</div>
+    <div class="answer-grid" id="answerGrid"></div>
+  </div>
+  <div class="feedback" id="feedback">
+    <div class="feedback-box">
+      <div class="feedback-icon" id="feedbackIcon">✅</div>
+      <div class="feedback-text" id="feedbackText">你好叻呀！</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== CHEST REWARD ====== -->
+<div class="screen" id="screen-chest">
+  <div class="chest-anim" id="chestAnim">🎁</div>
+  <div class="chest-text">你獲得咗</div>
+  <div class="chest-diamonds" id="chestDiamonds">💎💎💎</div>
+  <div class="chest-sub">㩒個寶箱打開佢！</div>
+</div>
+
+<!-- ====== LEVEL COMPLETE ====== -->
+<div class="screen" id="screen-complete">
+  <div class="complete-icon">🏆</div>
+  <div class="complete-title">👑 古埃及完成！</div>
+  <div class="complete-sub">你拯救咗金字塔！法老王好開心！</div>
+  <button class="btn-start" id="btnBaseReturn">🏰 返去基地</button>
+</div>
+
+<script>
+// ===== GAME STATE =====
+const STATE = {
+  screen: 'title',
+  diamonds: 0,
+  levelStars: [0,0,0],  // 0=locked, 1-3=stars earned
+  currentLevel: 0,
+  currentQuestion: 0,
+  baseBlocks: [],        // positions of diamonds placed in base
+}
+
+// ===== LEVEL DATA =====
+const LEVELS = [{
+  name: '古埃及金字塔',
+  emoji: '🏜️',
+  npc: '👑',
+  npcText: '救命啊！風暴吹垮咗我嘅金字塔！😱 幫我用數學修好佢，我會送你鑽石做獎勵！',
+  rewardDiamonds: 3,
+  // Questions are auto-generated when level starts
+  questions: [],
+}]
+
+// ===== QUESTION GENERATORS =====
+// Each returns { q, hint, answer, options, stars }
+// Generators are shuffled and picked randomly each session
+
+function generateOptions(correct, count) {
+  const opts = new Set([correct])
+  while(opts.size < count) {
+    const offset = 1 + Math.floor(Math.random() * 4)
+    if(Math.random() < 0.5) {
+      opts.add(correct + offset)
+    } else {
+      opts.add(Math.max(0, correct - offset))
+    }
+  }
+  return [...opts].sort(()=>Math.random()-0.5).map(String)
+}
+
+const QUESTION_GENERATORS = [
+
+  // 1️⃣ 數磚題：底層 + 第二層
+  function genCountBricks() {
+    // Pyramid 4 rows: 1+2+3+4
+    const bottom = 4, second = 3, total = bottom + second
+    return {
+      q: '金字塔最底兩行總共有幾多塊磚？',
+      hint: `數一數：最底嗰行（${bottom}塊）加埋上面嗰行（${second}塊）`,
+      answer: String(total),
+      options: ['5','6','7','8'],
+      stars: 1,
+    }
+  },
+
+  // 2️⃣ 鑽石文字題（隨機數字）
+  function genDiamondWord() {
+    const total = 8 + Math.floor(Math.random() * 8) // 8~15
+    const given = 2 + Math.floor(Math.random() * Math.max(1, total - 5)) // 2~(total-3)
+    const ans = total - given
+    return {
+      q: `法老王有 ${total} 粒鑽石，俾咗 ${given} 粒俾你，佢仲有幾多粒？`,
+      hint: `${total} 減 ${given} 係幾多？`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 1,
+    }
+  },
+
+  // 3️⃣ 進位加法（隨機）
+  function genAddition() {
+    const a = 5 + Math.floor(Math.random() * 6) // 5~10
+    const b = 3 + Math.floor(Math.random() * 7) // 3~9
+    const ans = a + b
+    return {
+      q: `${a} + ${b} = ?`,
+      hint: `${a} 加 ${b} 係幾多？可以數手指幫手！`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 1,
+    }
+  },
+
+  // 4️⃣ 減法題（隨機）
+  function genSubtraction() {
+    const a = 9 + Math.floor(Math.random() * 9) // 9~17
+    const b = 2 + Math.floor(Math.random() * 7) // 2~8
+    const ans = a - b
+    return {
+      q: `${a} - ${b} = ?`,
+      hint: `${a} 減 ${b}，答案係？`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 1,
+    }
+  },
+
+  // 5️⃣ 兩步題（加減混合，隨機）
+  function genTwoStep() {
+    const a = 4 + Math.floor(Math.random() * 7)  // 4~10
+    const b = 2 + Math.floor(Math.random() * 5)  // 2~6
+    const c = 1 + Math.floor(Math.random() * 5)  // 1~5
+    const ans = a + b - c
+    return {
+      q: `${a} + ${b} - ${c} = ?`,
+      hint: `計咗 ${a}+${b} 先，再減 ${c}`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 1,
+    }
+  },
+]
+
+function generateQuestions(count = 5) {
+  // Shuffle generators, pick 'count', run each
+  const shuffled = [...QUESTION_GENERATORS].sort(()=>Math.random()-0.5)
+  return shuffled.slice(0, count).map(fn => fn())
+}
+
+// ===== PYRAMID LAYOUT =====
+function buildPyramid(rows=4) {
+  const wrap = document.getElementById('pyramidWrap')
+  wrap.innerHTML = ''
+  for(let r=0; r<rows; r++) {
+    const row = document.createElement('div')
+    row.className = 'pyramid-row'
+    const blocks = r + 1
+    for(let b=0; b<blocks; b++) {
+      const block = document.createElement('div')
+      block.className = 'pyramid-block'
+      block.dataset.row = r
+      block.dataset.col = b
+      
+      // Determine if this block is the missing one (center of bottom row)
+      const isMissing = (r === rows-1 && b === Math.floor(blocks/2))
+      if(isMissing) {
+        block.classList.add('missing')
+        block.textContent = '❓'
+        block.id = 'missingBlock'
+      } else {
+        block.classList.add('filled')
+      }
+      row.appendChild(block)
+    }
+    wrap.appendChild(row)
+  }
+}
+
+// ===== AUDIO (Web Audio API) =====
+let audioCtx = null
+function initAudio() {
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+}
+
+function playTone(freq, duration=0.15, type='square') {
+  try {
+    initAudio()
+    const o = audioCtx.createOscillator()
+    const g = audioCtx.createGain()
+    o.type = type
+    o.frequency.value = freq
+    g.gain.setValueAtTime(0.15, audioCtx.currentTime)
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration)
+    o.connect(g)
+    g.connect(audioCtx.destination)
+    o.start()
+    o.stop(audioCtx.currentTime + duration)
+  } catch(e) {}
+}
+
+function sfxCorrect() {
+  playTone(523,0.1) // C5
+  setTimeout(()=>playTone(659,0.1),80) // E5
+  setTimeout(()=>playTone(784,0.15),160) // G5
+}
+
+function sfxWrong() {
+  playTone(200,0.3,'sawtooth')
+}
+
+function sfxClick() {
+  playTone(440,0.08)
+}
+
+function sfxChest() {
+  [523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,0.2),i*100))
+}
+
+function sfxComplete() {
+  [523,587,659,698,784,880,988,1047].forEach((f,i)=>setTimeout(()=>playTone(f,0.15,'triangle'),i*80))
+}
+
+// ===== SCREEN MANAGEMENT =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'))
+  const el = document.getElementById('screen-'+id)
+  if(el) el.classList.add('active')
+  STATE.screen = id
+  // Trigger audio context on first interaction
+  initAudio()
+}
+
+// ===== SAVE/LOAD =====
+function saveGame() {
+  try {
+    localStorage.setItem('mathHistory', JSON.stringify({
+      diamonds: STATE.diamonds,
+      levelStars: STATE.levelStars,
+      baseBlocks: STATE.baseBlocks,
+    }))
+  } catch(e) {}
+}
+
+function loadGame() {
+  try {
+    const d = JSON.parse(localStorage.getItem('mathHistory'))
+    if(d) {
+      STATE.diamonds = d.diamonds || 0
+      STATE.levelStars = d.levelStars || [0,0,0]
+      STATE.baseBlocks = d.baseBlocks || []
+    }
+  } catch(e) {}
+}
+
+// ===== SECRET BASE =====
+function renderBase() {
+  const grid = document.getElementById('baseGrid')
+  grid.innerHTML = ''
+  const total = 40
+  for(let i=0; i<total; i++) {
+    const b = document.createElement('div')
+    b.className = 'base-block ' + (STATE.baseBlocks.includes(i) ? 'diamond' : 'empty')
+    if(STATE.baseBlocks.includes(i)) b.textContent = '💎'
+    grid.appendChild(b)
+  }
+  document.getElementById('diamondCount').textContent = STATE.diamonds
+}
+
+function addDiamondToBase() {
+  // Check if base is full
+  if(STATE.baseBlocks.length >= 40) {
+    // Show a brief message
+    const fb = document.getElementById('feedback')
+    document.getElementById('feedbackIcon').textContent = '🏠'
+    document.getElementById('feedbackText').textContent = '基地滿咗啦！去玩更多關卡拎大啲基地啦！'
+    fb.classList.add('show')
+    setTimeout(() => fb.classList.remove('show'), 2000)
+    return
+  }
+  // Find an empty spot
+  for(let i=0; i<40; i++) {
+    if(!STATE.baseBlocks.includes(i)) {
+      STATE.baseBlocks.push(i)
+      break
+    }
+  }
+  renderBase()
+  saveGame()
+}
+
+// ===== DIALOG =====
+function showDialog(text, npc, callback) {
+  document.getElementById('dialogText').textContent = text
+  document.getElementById('npcIcon').textContent = npc || '👑'
+  const btn = document.getElementById('dialogBtn')
+  const newBtn = btn.cloneNode(true)
+  btn.parentNode.replaceChild(newBtn, btn)
+  newBtn.addEventListener('click', (e) => {
+    e.preventDefault()
+    sfxClick()
+    if(callback) callback()
+  })
+  // Only switch to dialog screen if not already showing
+  if(document.getElementById('screen-dialog').classList.contains('active')) return
+  showScreen('dialog')
+}
+
+// ===== LEVEL =====
+function startLevel(levelIdx) {
+  STATE.currentLevel = levelIdx
+  STATE.currentQuestion = 0
+  // Generate fresh set of random questions each time
+  const level = LEVELS[levelIdx]
+  level.questions = generateQuestions(5)
+  showQuestion(levelIdx, 0)
+}
+
+function showQuestion(levelIdx, qIdx) {
+  const level = LEVELS[levelIdx]
+  const q = level.questions[qIdx]
+  
+  document.getElementById('levelInfo').textContent = `${level.emoji} 第 ${qIdx+1}/${level.questions.length} 題`
+  
+  // Stars
+  const starCount = STATE.levelStars[levelIdx] || 0
+  document.getElementById('levelStars').textContent = '⭐'.repeat(starCount) + '☆'.repeat(3-starCount)
+  
+  // Build pyramid with missing block
+  buildPyramid(4)
+  
+  // Question
+  document.getElementById('questionLabel').textContent = q.q
+  document.getElementById('questionHint').textContent = q.hint
+  
+  // Answer buttons
+  const grid = document.getElementById('answerGrid')
+  grid.innerHTML = ''
+  const shuffled = [...q.options].sort(()=>Math.random()-0.5)
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button')
+    btn.className = 'answer-btn'
+    btn.textContent = opt
+    btn.addEventListener('click', () => handleAnswer(opt, q.answer, levelIdx, qIdx))
+    grid.appendChild(btn)
+  })
+  
+  showScreen('level')
+}
+
+function handleAnswer(selected, correct, levelIdx, qIdx) {
+  const btns = document.querySelectorAll('.answer-btn')
+  // Disable all answer buttons during feedback
+  btns.forEach(b => b.style.pointerEvents = 'none')
+  btns.forEach(b => {
+    if(b.textContent === selected) {
+      b.classList.add('selected')
+    }
+  })
+  
+  const missingBlock = document.getElementById('missingBlock')
+  
+  if(selected === correct) {
+    sfxCorrect()
+    if(missingBlock) {
+      missingBlock.classList.remove('missing')
+      missingBlock.classList.add('correct')
+      missingBlock.textContent = correct
+    }
+    
+    // Update stars
+    const current = STATE.levelStars[levelIdx] || 0
+    const max = LEVELS[levelIdx].questions.length
+    STATE.levelStars[levelIdx] = Math.min(current + 1, max)
+    saveGame()
+    
+    // Show feedback
+    const fb = document.getElementById('feedback')
+    document.getElementById('feedbackIcon').textContent = '✅'
+    document.getElementById('feedbackText').textContent = '啱啦！你好叻呀！👏'
+    fb.classList.add('show')
+    
+    setTimeout(() => {
+      fb.classList.remove('show')
+      const nextQ = qIdx + 1
+      if(nextQ < LEVELS[levelIdx].questions.length) {
+        showQuestion(levelIdx, nextQ)
+      } else {
+        showChest(levelIdx)
+      }
+    }, 1200)
+  } else {
+    sfxWrong()
+    if(missingBlock) {
+      missingBlock.classList.add('wrong')
+      setTimeout(() => missingBlock.classList.remove('wrong'), 300)
+    }
+    
+    document.getElementById('feedbackIcon').textContent = '🤔'
+    document.getElementById('feedbackText').textContent = '唔啱喎，再試一次！💪'
+    const fb = document.getElementById('feedback')
+    fb.classList.add('show')
+    
+    setTimeout(() => {
+      fb.classList.remove('show')
+      btns.forEach(b => {
+        b.classList.remove('selected')
+        b.style.pointerEvents = ''  // Re-enable buttons!
+      })
+    }, 1000)
+  }
+}
+
+// ===== CHEST =====
+function showChest(levelIdx) {
+  const level = LEVELS[levelIdx]
+  const d = level.rewardDiamonds || 3
+  document.getElementById('chestDiamonds').textContent = '💎'.repeat(d)
+  document.getElementById('chestAnim').textContent = '🎁'
+  
+  const anim = document.getElementById('chestAnim')
+  const newAnim = anim.cloneNode(true)
+  anim.parentNode.replaceChild(newAnim, anim)
+  
+  newAnim.addEventListener('click', (e) => {
+    e.preventDefault()
+    sfxChest()
+    STATE.diamonds += d
+    saveGame()
+    
+    // Diamond burst effect
+    for(let i=0; i<d; i++) {
+      const spark = document.createElement('div')
+      spark.className = 'diamond-burst'
+      spark.textContent = '💎'
+      spark.style.left = (30 + Math.random()*40) + '%'
+      spark.style.top = (30 + Math.random()*40) + '%'
+      spark.style.animation = `burstOut ${0.6 + Math.random()*0.4}s ease-out`
+      document.getElementById('screen-chest').appendChild(spark)
+      setTimeout(() => spark.remove(), 1200)
+    }
+    
+    setTimeout(() => {
+      sfxComplete()
+      // Add diamonds to base
+      for(let i=0; i<d; i++) addDiamondToBase()
+      showScreen('complete')
+    }, 1000)
+  }, {once: true})
+  
+  showScreen('chest')
+}
+
+// ===== NAVIGATION =====
+document.addEventListener('DOMContentLoaded', () => {
+  loadGame()
+  renderBase()
+  
+  // Title → Base
+  document.getElementById('btnStart').addEventListener('click', () => {
+    sfxClick()
+    initAudio()
+    renderBase()
+    showScreen('base')
+  })
+  
+  // Base → Egypt level (skip intermediate dialogs to avoid iOS issues)
+  document.getElementById('btnEgypt').addEventListener('click', () => {
+    sfxClick()
+    startLevel(0)
+  })
+  
+  // Complete → Base
+  document.getElementById('btnBaseReturn').addEventListener('click', () => {
+    sfxClick()
+    renderBase()
+    showScreen('base')
+  })
+})
+
+// ===== KEYBOARD (for testing on desktop) =====
+document.addEventListener('keydown', (e) => {
+  if(STATE.screen === 'level') {
+    const num = parseInt(e.key)
+    if(num >= 1 && num <= 4) {
+      const btns = document.querySelectorAll('.answer-btn')
+      if(btns[num-1]) btns[num-1].click()
+    }
+  }
+})
+
+// ===== PREVENT DEFAULT TOUCH (only in portrait) =====
+document.addEventListener('touchmove', (e) => {
+  if(window.matchMedia('(orientation:portrait)').matches && e.target.closest('.screen')) e.preventDefault()
+}, {passive: false})
+
+console.log('⛏️ Minecraft 數學歷史遊戲已載入！')
+console.log('💡 提示：㩒 1-4 數字鍵可以快速選擇答案（桌面版）')
+</script>
+</body>
+</html>
