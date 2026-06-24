@@ -530,7 +530,7 @@ function showDialog(text, npc, callback) {
     e.preventDefault()
     sfxClick()
     if(callback) callback()
-  }, {once: true})
+  })
   // Only switch to dialog screen if not already showing
   if(document.getElementById('screen-dialog').classList.contains('active')) return
   showScreen('dialog')
@@ -699,9 +699,12 @@ document.addEventListener('DOMContentLoaded', () => {
     sfxClick()
     const level = LEVELS[0]
     showDialog(level.npcText, level.npc, () => {
-      showDialog(level.npcText2, level.npc, () => {
-        startLevel(0)
-      })
+      // Defer second dialog to avoid re-entrancy issues on iOS
+      setTimeout(() => {
+        showDialog(level.npcText2, level.npc, () => {
+          startLevel(0)
+        })
+      }, 50)
     })
   })
   
