@@ -695,10 +695,14 @@ document.addEventListener('DOMContentLoaded', () => {
   })
   
   // Base → Egypt level (skip intermediate dialogs to avoid iOS issues)
-  document.getElementById('btnEgypt').addEventListener('click', () => {
-    sfxClick()
+  const btnEgypt = document.getElementById('btnEgypt')
+  function goToEgypt(e) {
+    e.preventDefault()
+    try { sfxClick() } catch(_) {}
     startLevel(0)
-  })
+  }
+  btnEgypt.addEventListener('click', goToEgypt)
+  btnEgypt.addEventListener('touchend', goToEgypt)
   
   // Complete → Base
   document.getElementById('btnBaseReturn').addEventListener('click', () => {
