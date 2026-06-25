@@ -4,7 +4,6 @@
   "description": "Minecraft 風格數學歷史遊戲 — 學數學、認識歷史、儲鑽石！",
   "start_url": "/minecraft-math-history/",
   "display": "fullscreen",
-  "orientation": "landscape",
   "background_color": "#1a1a2e",
   "theme_color": "#e2b714",
   "icons": [
