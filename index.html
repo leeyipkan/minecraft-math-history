@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
-<title>Minecraft 數學歷史</title>
+<title>Minecraft Math History</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial,sans-serif;touch-action:manipulation}
@@ -189,23 +189,23 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
 <!-- ====== TITLE SCREEN ====== -->
 <div class="screen active" id="screen-title">
   <div class="title-icon">⛏️</div>
-  <div class="title-h1">數學✕歷史</div>
-  <div class="title-h2">Minecraft 冒險之旅</div>
-  <button class="btn-start" id="btnStart" onclick="startGame()">▶ 開始遊戲</button>
+  <div class="title-h1">Math ✕ History</div>
+  <div class="title-h2">Minecraft Adventure</div>
+  <button class="btn-start" id="btnStart" onclick="startGame()">▶ Start Game</button>
 </div>
 
 <!-- ====== SECRET BASE ====== -->
 <div class="screen" id="screen-base">
-  <div class="base-title">🏰 秘密基地</div>
-  <div class="base-sub">你嘅冒險基地</div>
+  <div class="base-title">🏰 Secret Base</div>
+  <div class="base-sub">Your Adventure Base</div>
   <div class="diamond-row">
     <span>💎</span>
     <span class="diamond-count" id="diamondCount">0</span>
-    <span style="font-size:clamp(12px,2.5vw,18px);color:#8b8">粒鑽石</span>
+    <span style="font-size:clamp(12px,2.5vw,18px);color:#8b8">Diamonds</span>
   </div>
   <div class="base-grid" id="baseGrid"></div>
   <div class="base-levels" id="baseLevels"></div>
-  <div style="margin-top:6px;font-size:clamp(11px,2vw,16px);color:#666">仲有更多關卡即將推出！</div>
+  <div style="margin-top:6px;font-size:clamp(11px,2vw,16px);color:#666">More levels coming soon!</div>
 </div>
 
 <!-- ====== DIALOG ====== -->
@@ -214,7 +214,7 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
     <div class="dialog-npc" id="npcIcon">👑</div>
     <div class="dialog-text" id="dialogText">...</div>
     <div style="text-align:center">
-      <button class="dialog-btn" id="dialogBtn">繼續 ▶</button>
+      <button class="dialog-btn" id="dialogBtn">Continue ▶</button>
     </div>
   </div>
 </div>
@@ -222,19 +222,19 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
 <!-- ====== LEVEL (EGYPT) ====== -->
 <div class="screen" id="screen-level">
   <div class="level-header">
-    <div class="level-info" id="levelInfo">🏜️ 第 1/3 題</div>
+    <div class="level-info" id="levelInfo">🏜️ Q 1/5</div>
     <div class="level-stars" id="levelStars">⭐⭐⭐</div>
   </div>
   <div class="pyramid-wrap" id="pyramidWrap"></div>
   <div class="question-area">
     <div class="question-label" id="questionLabel">❓</div>
-    <div class="question-hint" id="questionHint">揀出正確嘅數字方塊！</div>
+    <div class="question-hint" id="questionHint">Pick the correct number block!</div>
     <div class="answer-grid" id="answerGrid"></div>
   </div>
   <div class="feedback" id="feedback">
     <div class="feedback-box">
       <div class="feedback-icon" id="feedbackIcon">✅</div>
-      <div class="feedback-text" id="feedbackText">你好叻呀！</div>
+      <div class="feedback-text" id="feedbackText">You're amazing!</div>
     </div>
   </div>
 </div>
@@ -242,39 +242,39 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
 <!-- ====== CHEST REWARD ====== -->
 <div class="screen" id="screen-chest">
   <div class="chest-anim" id="chestAnim" onclick="chestClick()">🎁</div>
-  <div class="chest-text">你獲得咗</div>
+  <div class="chest-text">You got</div>
   <div class="chest-diamonds" id="chestDiamonds">💎💎💎</div>
-  <div class="chest-sub">㩒個寶箱打開佢！</div>
+  <div class="chest-sub">Tap the chest to open it!</div>
 </div>
 
 <!-- ====== LEVEL COMPLETE ====== -->
 <div class="screen" id="screen-complete">
   <div class="complete-icon">🏆</div>
-  <div class="complete-title" id="completeTitle">👑 古埃及完成！</div>
-  <div class="complete-sub" id="completeSub">你拯救咗金字塔！法老王好開心！</div>
+  <div class="complete-title" id="completeTitle">👑 Egypt Complete!</div>
+  <div class="complete-sub" id="completeSub">You saved the pyramid! The Pharaoh is happy!</div>
   <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-    <button class="btn-start" onclick="baseReturn()">🏰 返去基地</button>
-    <button class="btn-start" id="btnNextLevel" style="background:linear-gradient(180deg,#d4a030,#b8860b);border-color:#8b6914;box-shadow:0 6px 0 #8b6914;display:none" onclick="goNextLevel()">▶ 下一關</button>
+    <button class="btn-start" onclick="baseReturn()">🏰 Back to Base</button>
+    <button class="btn-start" id="btnNextLevel" style="background:linear-gradient(180deg,#d4a030,#b8860b);border-color:#8b6914;box-shadow:0 6px 0 #8b6914;display:none" onclick="goNextLevel()">▶ Next Level</button>
   </div>
 </div>
 
 <script>
 // ===== LEVEL DATA =====
 const LEVELS = [{
-  name: '古埃及金字塔',
+  name: 'Ancient Egypt Pyramid',
   emoji: '🏜️',
   npc: '👑',
-  npcText: '救命啊！風暴吹垮咗我嘅金字塔！😱 幫我用數學修好佢，我會送你鑽石做獎勵！',
+  npcText: 'Help! A storm destroyed my pyramid! 😱 Fix it with math and I\'ll reward you with diamonds!',
   rewardDiamonds: 5,
   themeClass: 'theme-egypt',
   buildVisual: function() { buildPyramid(4) },
   // Questions are auto-generated when level starts
   questions: [],
 },{
-  name: '古羅馬競技場',
+  name: 'Ancient Rome Colosseum',
   emoji: '🏟️',
   npc: '🦁',
-  npcText: '轟隆！雷電擊中咗競技場嘅拱門！😱 鬥士們冇辦法出場！幫我用數學修好佢！',
+  npcText: 'Boom! Lightning struck the colosseum arches! 😱 The gladiators can\'t enter! Fix it with math!',
   rewardDiamonds: 5,
   themeClass: 'theme-rome',
   buildVisual: function() { renderColosseum() },
@@ -310,62 +310,62 @@ function generateOptions(correct, count) {
 
 const QUESTION_GENERATORS_EGYPT = [
 
-  // 1️⃣ 數磚題：底層 + 第二層
+  // 1️⃣ Count bricks: bottom + second row
   function genCountBricks() {
     // Pyramid 4 rows: 1+2+3+4
     const bottom = 4, second = 3, total = bottom + second
     return {
-      q: '金字塔最底兩行總共有幾多塊磚？',
-      hint: `數一數：最底嗰行（${bottom}塊）加埋上面嗰行（${second}塊）`,
+      q: 'How many bricks are in the bottom two rows?',
+      hint: `Count: bottom row (${bottom}) + second row (${second})`,
       answer: String(total),
       options: ['5','6','7','8'],
       stars: 1,
     }
   },
 
-  // 2️⃣ 鑽石文字題（隨機數字）
+  // 2️⃣ Diamond word problem (random numbers)
   function genDiamondWord() {
     const total = 8 + Math.floor(Math.random() * 8) // 8~15
     const given = 2 + Math.floor(Math.random() * Math.max(1, total - 5)) // 2~(total-3)
     const ans = total - given
     return {
-      q: `法老王有 ${total} 粒鑽石，俾咗 ${given} 粒俾你，佢仲有幾多粒？`,
-      hint: `${total} 減 ${given} 係幾多？`,
+      q: `The Pharaoh has ${total} diamonds, gives you ${given}. How many does he have left?`,
+      hint: `${total} minus ${given} is how much?`,
       answer: String(ans),
       options: generateOptions(ans, 4),
       stars: 1,
     }
   },
 
-  // 3️⃣ 進位加法（隨機）
+  // 3️⃣ Addition (random)
   function genAddition() {
     const a = 5 + Math.floor(Math.random() * 6) // 5~10
     const b = 3 + Math.floor(Math.random() * 7) // 3~9
     const ans = a + b
     return {
       q: `${a} + ${b} = ?`,
-      hint: `${a} 加 ${b} 係幾多？可以數手指幫手！`,
+      hint: `${a} plus ${b} is how much? Use your fingers to count!`,
       answer: String(ans),
       options: generateOptions(ans, 4),
       stars: 1,
     }
   },
 
-  // 4️⃣ 減法題（隨機）
+  // 4️⃣ Subtraction (random)
   function genSubtraction() {
     const a = 9 + Math.floor(Math.random() * 9) // 9~17
     const b = 2 + Math.floor(Math.random() * 7) // 2~8
     const ans = a - b
     return {
       q: `${a} - ${b} = ?`,
-      hint: `${a} 減 ${b}，答案係？`,
+      hint: `${a} minus ${b}, what's the answer?`,
       answer: String(ans),
       options: generateOptions(ans, 4),
       stars: 1,
     }
   },
 
-  // 5️⃣ 兩步題（加減混合，隨機）
+  // 5️⃣ Two-step (mixed addition & subtraction)
   function genTwoStep() {
     const a = 4 + Math.floor(Math.random() * 7)  // 4~10
     const b = 2 + Math.floor(Math.random() * 5)  // 2~6
@@ -373,7 +373,7 @@ const QUESTION_GENERATORS_EGYPT = [
     const ans = a + b - c
     return {
       q: `${a} + ${b} - ${c} = ?`,
-      hint: `計咗 ${a}+${b} 先，再減 ${c}`,
+      hint: `Do ${a}+${b} first, then minus ${c}`,
       answer: String(ans),
       options: generateOptions(ans, 4),
       stars: 1,
@@ -384,35 +384,35 @@ const QUESTION_GENERATORS_EGYPT = [
 // ===== ROME QUESTION GENERATORS (harder) =====
 const QUESTION_GENERATORS_ROME = [
 
-  // 1️⃣ 雙位數加法（12~25）
+  // 1️⃣ Double-digit addition (12~25)
   function genBigAddition() {
     const a = 10 + Math.floor(Math.random() * 10) // 10~19
     const b = 5 + Math.floor(Math.random() * 10)  // 5~14
     const ans = a + b
     return {
-      q: `競技場有 ${a} 個觀眾，再嚟多 ${b} 個，總共有幾多人？`,
-      hint: `${a} 加 ${b} 係？可以分開計：先加十位再加個位`,
+      q: `The Colosseum has ${a} spectators, ${b} more arrive. How many total?`,
+      hint: `${a} plus ${b}? Add the tens first, then the ones!`,
       answer: String(ans),
       options: generateOptions(ans, 4),
       stars: 1,
     }
   },
 
-  // 2️⃣ 雙位數減法（15~30）
+  // 2️⃣ Double-digit subtraction (15~30)
   function genBigSubtraction() {
     const a = 18 + Math.floor(Math.random() * 12) // 18~29
     const b = 5 + Math.floor(Math.random() * 10)  // 5~14
     const ans = a - b
     return {
-      q: `🦁 鬥士有 ${a} 分，輸咗俾對方 ${b} 分，仲有幾多分？`,
-      hint: `${a} 減 ${b}，退位減法要小心計！`,
+      q: `🦁 The gladiator has ${a} points, loses ${b} to his opponent. How many left?`,
+      hint: `${a} minus ${b}, borrow carefully!`,
       answer: String(ans),
       options: generateOptions(ans, 4),
       stars: 1,
     }
   },
 
-  // 3️⃣ 乘數概念（重複加法）
+  // 3️⃣ Repeated addition (multiplication concept)
   function genRepeatedAdd() {
     const rows = 2 + Math.floor(Math.random() * 3)  // 2~4
     const seats = 2 + Math.floor(Math.random() * 4) // 2~5
@@ -420,30 +420,30 @@ const QUESTION_GENERATORS_ROME = [
     for(let i=0; i<rows; i++) parts.push(seats)
     const ans = rows * seats
     return {
-      q: `競技場有 ${rows} 行座位，每行有 ${seats} 個位，總共有幾多個位？`,
-      hint: `${parts.join('+')} = ？即係 ${rows} 個 ${seats} 加埋`,
+      q: `The Colosseum has ${rows} rows, ${seats} seats per row. How many seats total?`,
+      hint: `${parts.join('+')} = ? That's ${rows} groups of ${seats} added together`,
       answer: String(ans),
       options: generateOptions(ans, 4),
       stars: 2,
     }
   },
 
-  // 4️⃣ 大數字文字題（混合加減）
+  // 4️⃣ Big number word problem (mixed +/-)
   function genBigWordProblem() {
     const start = 20 + Math.floor(Math.random() * 20)  // 20~39
     const arrive = 5 + Math.floor(Math.random() * 10)   // 5~14
     const leave = 3 + Math.floor(Math.random() * 8)     // 3~10
     const ans = start + arrive - leave
     return {
-      q: `🏟️ 競技場本來有 ${start} 人，嚟咗 ${arrive} 個新觀眾，走咗 ${leave} 個人，𠵱家有幾多人？`,
-      hint: `先加 ${arrive}，再減 ${leave}，一步步嚟`,
+      q: `🏟️ The Colosseum had ${start} people, ${arrive} more came, ${leave} left. How many now?`,
+      hint: `Add ${arrive} first, then subtract ${leave}, step by step!`,
       answer: String(ans),
       options: generateOptions(ans, 4),
       stars: 2,
     }
   },
 
-  // 5️⃣ 兩步題（雙位數加減）
+  // 5️⃣ Two-step (double-digit)
   function genBigTwoStep() {
     const a = 12 + Math.floor(Math.random() * 10)  // 12~21
     const b = 5 + Math.floor(Math.random() * 8)    // 5~12
@@ -451,7 +451,7 @@ const QUESTION_GENERATORS_ROME = [
     const ans = a + b - c
     return {
       q: `${a} + ${b} - ${c} = ?`,
-      hint: `計咗 ${a}+${b}=？先，再減 ${c}，數字大啲但要小心計！`,
+      hint: `Do ${a}+${b}=? first, then minus ${c}. Bigger numbers but you've got this!`,
       answer: String(ans),
       options: generateOptions(ans, 4),
       stars: 2,
@@ -650,7 +650,7 @@ function addDiamondToBase() {
     // Show a brief message
     const fb = document.getElementById('feedback')
     document.getElementById('feedbackIcon').textContent = '🏠'
-    document.getElementById('feedbackText').textContent = '基地滿咗啦！去玩更多關卡拎大啲基地啦！'
+    document.getElementById('feedbackText').textContent = 'Base is full! Play more levels to unlock a bigger base!'
     fb.classList.add('show')
     setTimeout(() => fb.classList.remove('show'), 2000)
     return
@@ -697,7 +697,7 @@ function showQuestion(levelIdx, qIdx) {
   const level = LEVELS[levelIdx]
   const q = level.questions[qIdx]
   
-  document.getElementById('levelInfo').textContent = `${level.emoji} 第 ${qIdx+1}/${level.questions.length} 題`
+  document.getElementById('levelInfo').textContent = `${level.emoji} Q ${qIdx+1}/${level.questions.length}`
   
   // Stars
   const starCount = STATE.levelStars[levelIdx] || 0
@@ -757,7 +757,7 @@ function handleAnswer(selected, correct, levelIdx, qIdx) {
     // Show feedback
     const fb = document.getElementById('feedback')
     document.getElementById('feedbackIcon').textContent = '✅'
-    document.getElementById('feedbackText').textContent = '啱啦！你好叻呀！👏'
+    document.getElementById('feedbackText').textContent = 'Correct! You\'re amazing! 👏'
     fb.classList.add('show')
     
     setTimeout(() => {
@@ -777,7 +777,7 @@ function handleAnswer(selected, correct, levelIdx, qIdx) {
     }
     
     document.getElementById('feedbackIcon').textContent = '🤔'
-    document.getElementById('feedbackText').textContent = '唔啱喎，再試一次！💪'
+    document.getElementById('feedbackText').textContent = 'Not quite, try again! 💪'
     const fb = document.getElementById('feedback')
     fb.classList.add('show')
     
@@ -821,9 +821,9 @@ window.chestClick = function() {
     
     // Update complete screen with level name
     const lv = LEVELS[STATE.currentLevel]
-    document.getElementById('completeTitle').textContent = lv.emoji + ' ' + lv.name + '完成！'
+    document.getElementById('completeTitle').textContent = lv.emoji + ' ' + lv.name + ' Complete!'
     document.getElementById('completeSub').textContent = 
-      STATE.currentLevel === 0 ? '你拯救咗金字塔！法老王好開心！' : '競技場嘅拱門重建好喇！鬥士們可以出場了！'
+      STATE.currentLevel === 0 ? 'You saved the pyramid! The Pharaoh is happy!' : 'The colosseum arches are rebuilt! The gladiators can fight!'
     
     // Show next level button if there's an unlocked next level
     const nextBtn = document.getElementById('btnNextLevel')
@@ -896,8 +896,8 @@ document.addEventListener('keydown', (e) => {
   }
 })
 
-console.log('⛏️ Minecraft 數學歷史遊戲已載入！')
-console.log('💡 提示：㩒 1-4 數字鍵可以快速選擇答案（桌面版）')
+console.log('⛏️ Minecraft Math History loaded!')
+console.log('💡 Tip: Press 1-4 number keys to quickly answer (desktop)')
 </script>
 </body>
 </html>
