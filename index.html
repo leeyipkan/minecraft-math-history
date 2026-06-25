@@ -208,7 +208,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:
     <span style="font-size:clamp(12px,2.5vw,18px);color:#8b8">粒鑽石</span>
   </div>
   <div class="base-grid" id="baseGrid"></div>
-  <button class="base-level-btn" id="btnEgypt" type="button">🏜️ 古埃及金字塔 ▶</button>
+  <button class="base-level-btn" id="btnEgypt" type="button" onclick="window.btnEgyptClick()">🏜️ 古埃及金字塔 ▶</button>
   <div style="margin-top:6px;font-size:clamp(11px,2vw,16px);color:#666">仲有更多關卡即將推出！</div>
 </div>
 
@@ -695,18 +695,12 @@ document.addEventListener('DOMContentLoaded', () => {
   })
   
   // Base → Egypt level (skip intermediate dialogs to avoid iOS issues)
-  const btnEgypt = document.getElementById('btnEgypt')
-  btnEgypt.addEventListener('click', (e) => {
-    e.preventDefault()
-    console.log('btnEgypt clicked')
-    try { sfxClick() } catch(_) { console.error('sfxClick error', _) }
+  window.btnEgyptClick = function() {
+    try { sfxClick() } catch(_) {}
     if(STATE.screen !== 'level') {
-      console.log('starting level 0')
       startLevel(0)
-    } else {
-      console.log('already on level, skipping')
     }
-  })
+  }
   
   // Complete → Base
   document.getElementById('btnBaseReturn').addEventListener('click', () => {
