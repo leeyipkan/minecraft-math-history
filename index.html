@@ -179,7 +179,7 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
   <div class="title-icon">⛏️</div>
   <div class="title-h1">數學✕歷史</div>
   <div class="title-h2">Minecraft 冒險之旅</div>
-  <button class="btn-start" id="btnStart">▶ 開始遊戲</button>
+  <button class="btn-start" id="btnStart" onclick="startGame()">▶ 開始遊戲</button>
 </div>
 
 <!-- ====== SECRET BASE ====== -->
@@ -229,7 +229,7 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
 
 <!-- ====== CHEST REWARD ====== -->
 <div class="screen" id="screen-chest">
-  <div class="chest-anim" id="chestAnim">🎁</div>
+  <div class="chest-anim" id="chestAnim" onclick="chestClick()">🎁</div>
   <div class="chest-text">你獲得咗</div>
   <div class="chest-diamonds" id="chestDiamonds">💎💎💎</div>
   <div class="chest-sub">㩒個寶箱打開佢！</div>
@@ -240,7 +240,7 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
   <div class="complete-icon">🏆</div>
   <div class="complete-title">👑 古埃及完成！</div>
   <div class="complete-sub">你拯救咗金字塔！法老王好開心！</div>
-  <button class="btn-start" id="btnBaseReturn">🏰 返去基地</button>
+  <button class="btn-start" id="btnBaseReturn" onclick="baseReturn()">🏰 返去基地</button>
 </div>
 
 <script>
@@ -550,11 +550,11 @@ function showQuestion(levelIdx, qIdx) {
   const grid = document.getElementById('answerGrid')
   grid.innerHTML = ''
   const shuffled = [...q.options].sort(()=>Math.random()-0.5)
-  shuffled.forEach(opt => {
+  shuffled.forEach((opt, i) => {
     const btn = document.createElement('button')
     btn.className = 'answer-btn'
     btn.textContent = opt
-    btn.addEventListener('click', () => handleAnswer(opt, q.answer, levelIdx, qIdx))
+    btn.setAttribute('onclick', `handleAnswer('${opt}','${q.answer}',${levelIdx},${qIdx})`)
     grid.appendChild(btn)
   })
   
@@ -625,44 +625,58 @@ function handleAnswer(selected, correct, levelIdx, qIdx) {
 }
 
 // ===== CHEST =====
+let _chestLocked = false
+window.chestClick = function() {
+  if(_chestLocked) return
+  _chestLocked = true
+  const level = LEVELS[STATE.currentLevel]
+  const d = level.rewardDiamonds || 3
+  sfxChest()
+  STATE.diamonds += d
+  saveGame()
+  
+  // Diamond burst effect
+  for(let i=0; i<d; i++) {
+    const spark = document.createElement('div')
+    spark.className = 'diamond-burst'
+    spark.textContent = '💎'
+    spark.style.left = (30 + Math.random()*40) + '%'
+    spark.style.top = (30 + Math.random()*40) + '%'
+    spark.style.animation = `burstOut ${0.6 + Math.random()*0.4}s ease-out`
+    document.getElementById('screen-chest').appendChild(spark)
+    setTimeout(() => spark.remove(), 1200)
+  }
+  
+  setTimeout(() => {
+    sfxComplete()
+    for(let i=0; i<d; i++) addDiamondToBase()
+    _chestLocked = false
+    showScreen('complete')
+  }, 1000)
+}
+
 function showChest(levelIdx) {
   const level = LEVELS[levelIdx]
   const d = level.rewardDiamonds || 3
   document.getElementById('chestDiamonds').textContent = '💎'.repeat(d)
-  const anim = document.getElementById('chestAnim')
-  anim.textContent = '🎁'
-  anim.style.cursor = 'pointer'
-  
-  let chestClicked = false
-  anim.addEventListener('click', (e) => {
-    e.preventDefault()
-    if(chestClicked) return
-    chestClicked = true
-    sfxChest()
-    STATE.diamonds += d
-    saveGame()
-    
-    // Diamond burst effect
-    for(let i=0; i<d; i++) {
-      const spark = document.createElement('div')
-      spark.className = 'diamond-burst'
-      spark.textContent = '💎'
-      spark.style.left = (30 + Math.random()*40) + '%'
-      spark.style.top = (30 + Math.random()*40) + '%'
-      spark.style.animation = `burstOut ${0.6 + Math.random()*0.4}s ease-out`
-      document.getElementById('screen-chest').appendChild(spark)
-      setTimeout(() => spark.remove(), 1200)
-    }
-    
-    setTimeout(() => {
-      sfxComplete()
-      // Add diamonds to base
-      for(let i=0; i<d; i++) addDiamondToBase()
-      showScreen('complete')
-    }, 1000)
-  })
-  
+  _chestLocked = false
   showScreen('chest')
+}
+
+let _answerLock = false
+let _answerCtx = null
+
+function startGame() {
+    sfxClick()
+    initAudio()
+    renderBase()
+    showScreen('base')
+}
+
+function baseReturn() {
+    sfxClick()
+    renderBase()
+    showScreen('base')
 }
 
 // ===== NAVIGATION =====
@@ -670,31 +684,13 @@ document.addEventListener('DOMContentLoaded', () => {
   loadGame()
   renderBase()
   
-  // Title → Base
-  document.getElementById('btnStart').addEventListener('click', () => {
-    sfxClick()
-    initAudio()
-    renderBase()
-    showScreen('base')
-  })
-  
-  // Base → Egypt level (skip intermediate dialogs to avoid iOS issues)
+  // Base → Egypt level
   window.btnEgyptClick = function() {
-    // debug: show we got the click
-    document.body.style.background = 'red'
-    setTimeout(function(){ document.body.style.background = '' }, 500)
     try { sfxClick() } catch(_) {}
     if(STATE.screen !== 'level') {
       startLevel(0)
     }
   }
-  
-  // Complete → Base
-  document.getElementById('btnBaseReturn').addEventListener('click', () => {
-    sfxClick()
-    renderBase()
-    showScreen('base')
-  })
 })
 
 // ===== KEYBOARD (for testing on desktop) =====
