@@ -546,15 +546,15 @@ function showQuestion(levelIdx, qIdx) {
   document.getElementById('questionLabel').textContent = q.q
   document.getElementById('questionHint').textContent = q.hint
   
-  // Answer buttons
+  // Answer buttons  
   const grid = document.getElementById('answerGrid')
   grid.innerHTML = ''
   const shuffled = [...q.options].sort(()=>Math.random()-0.5)
-  shuffled.forEach((opt, i) => {
+  shuffled.forEach(opt => {
     const btn = document.createElement('button')
     btn.className = 'answer-btn'
     btn.textContent = opt
-    btn.setAttribute('onclick', `handleAnswer('${opt}','${q.answer}',${levelIdx},${qIdx})`)
+    btn.onclick = function() { handleAnswer(this.textContent, q.answer, levelIdx, qIdx) }
     grid.appendChild(btn)
   })
   
@@ -663,9 +663,7 @@ function showChest(levelIdx) {
   showScreen('chest')
 }
 
-let _answerLock = false
-let _answerCtx = null
-
+// ===== NAVIGATION =====
 function startGame() {
     sfxClick()
     initAudio()
