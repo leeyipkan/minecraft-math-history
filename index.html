@@ -536,8 +536,8 @@ function showQuestion(levelIdx, qIdx) {
   document.getElementById('levelInfo').textContent = `${level.emoji} 第 ${qIdx+1}/${level.questions.length} 題`
   
   // Stars
-  const starCount = Math.min(STATE.levelStars[levelIdx] || 0, 3)
-  document.getElementById('levelStars').textContent = '⭐'.repeat(starCount) + '☆'.repeat(3-starCount)
+  const starCount = STATE.levelStars[levelIdx] || 0
+  document.getElementById('levelStars').textContent = '⭐'.repeat(Math.min(starCount, 5)) + '☆'.repeat(Math.max(0, 5-starCount))
   
   // Build pyramid with missing block
   buildPyramid(4)
