@@ -698,8 +698,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnEgypt = document.getElementById('btnEgypt')
   btnEgypt.addEventListener('click', (e) => {
     e.preventDefault()
-    try { sfxClick() } catch(_) {}
-    if(STATE.screen !== 'level') startLevel(0)
+    console.log('btnEgypt clicked')
+    try { sfxClick() } catch(_) { console.error('sfxClick error', _) }
+    if(STATE.screen !== 'level') {
+      console.log('starting level 0')
+      startLevel(0)
+    } else {
+      console.log('already on level, skipping')
+    }
   })
   
   // Complete → Base
