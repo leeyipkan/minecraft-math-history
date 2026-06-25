@@ -259,16 +259,6 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
 </div>
 
 <script>
-// ===== GAME STATE =====
-const STATE = {
-  screen: 'title',
-  diamonds: 0,
-  levelStars: new Array(LEVELS.length).fill(0),  // 0=locked, 1-5=stars earned
-  currentLevel: 0,
-  currentQuestion: 0,
-  baseBlocks: [],        // positions of diamonds placed in base
-}
-
 // ===== LEVEL DATA =====
 const LEVELS = [{
   name: '古埃及金字塔',
@@ -290,6 +280,16 @@ const LEVELS = [{
   buildVisual: function() { renderColosseum() },
   questions: [],
 }]
+
+// ===== GAME STATE =====
+const STATE = {
+  screen: 'title',
+  diamonds: 0,
+  levelStars: new Array(LEVELS.length).fill(0),  // 0=locked, 1-5=stars earned
+  currentLevel: 0,
+  currentQuestion: 0,
+  baseBlocks: [],        // positions of diamonds placed in base
+}
 
 // ===== QUESTION GENERATORS =====
 // Each returns { q, hint, answer, options, stars }
