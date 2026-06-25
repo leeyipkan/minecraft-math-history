@@ -63,6 +63,18 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
 .pyramid-block.wrong{background:linear-gradient(135deg,#f66,#c33)!important;border-color:#a22!important;animation:shake .3s}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}
 
+/* ===== COLOSSEUM ===== */
+.theme-rome{background:linear-gradient(180deg,#f4a460,#c4956a 30%,#8b5e3c 70%,#6b3e1c)!important}
+.colosseum-wrap{display:flex;flex-direction:column;align-items:center;margin:4px 0}
+.colosseum-row{display:flex;justify-content:center}
+.arch-block{width:clamp(40px,9vw,64px);height:clamp(36px,8vw,56px);margin:2px;display:flex;align-items:center;justify-content:center;font-size:clamp(14px,3vw,24px);font-weight:900;border-radius:12px 12px 4px 4px;transition:.3s}
+.arch-block.filled{background:linear-gradient(135deg,#d4a574,#b8845a);border:2px solid #8b6b4a;color:#5c3a1e;box-shadow:inset 0 0 12px rgba(255,200,150,.3),0 2px 4px rgba(0,0,0,.3)}
+.arch-block.filled::after{content:'⬜';font-size:clamp(8px,1.5vw,14px);opacity:.5;position:absolute}
+.arch-block.missing{background:rgba(0,0,0,.3);border:3px dashed #ff6;cursor:pointer;color:#ff6;font-size:clamp(20px,5vw,40px);animation:pulse 1s infinite}
+.arch-block.correct{background:linear-gradient(135deg,#6f6,#4a4)!important;border-color:#2d2!important;animation:pop .3s}
+.arch-block.wrong{background:linear-gradient(135deg,#f66,#c33)!important;border-color:#a22!important;animation:shake .3s}
+.colosseum-gladiator{font-size:clamp(32px,7vw,56px);margin:2px 0 4px;animation:float 1.5s ease-in-out infinite}
+
 /* Decorative - sun is placed in HTML */
 .pyramid-sun{position:absolute;top:10px;right:10px;font-size:clamp(24px,5vw,48px)}
 
@@ -192,7 +204,7 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
     <span style="font-size:clamp(12px,2.5vw,18px);color:#8b8">粒鑽石</span>
   </div>
   <div class="base-grid" id="baseGrid"></div>
-  <div class="base-level-btn" id="btnEgypt" onclick="(function(){try{sfxClick()}catch(e){}if(typeof STATE!=='undefined'&&STATE.screen!=='level')startLevel(0)})()">🏜️ 古埃及金字塔 ▶</div>
+  <div class="base-levels" id="baseLevels"></div>
   <div style="margin-top:6px;font-size:clamp(11px,2vw,16px);color:#666">仲有更多關卡即將推出！</div>
 </div>
 
@@ -238,9 +250,12 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
 <!-- ====== LEVEL COMPLETE ====== -->
 <div class="screen" id="screen-complete">
   <div class="complete-icon">🏆</div>
-  <div class="complete-title">👑 古埃及完成！</div>
-  <div class="complete-sub">你拯救咗金字塔！法老王好開心！</div>
-  <button class="btn-start" id="btnBaseReturn" onclick="baseReturn()">🏰 返去基地</button>
+  <div class="complete-title" id="completeTitle">👑 古埃及完成！</div>
+  <div class="complete-sub" id="completeSub">你拯救咗金字塔！法老王好開心！</div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+    <button class="btn-start" onclick="baseReturn()">🏰 返去基地</button>
+    <button class="btn-start" id="btnNextLevel" style="background:linear-gradient(180deg,#d4a030,#b8860b);border-color:#8b6914;box-shadow:0 6px 0 #8b6914;display:none" onclick="goNextLevel()">▶ 下一關</button>
+  </div>
 </div>
 
 <script>
@@ -248,7 +263,7 @@ html,body{width:100%;height:100%;background:#1a1a2e;font-family:'Segoe UI',Arial
 const STATE = {
   screen: 'title',
   diamonds: 0,
-  levelStars: [0,0,0],  // 0=locked, 1-3=stars earned
+  levelStars: new Array(LEVELS.length).fill(0),  // 0=locked, 1-5=stars earned
   currentLevel: 0,
   currentQuestion: 0,
   baseBlocks: [],        // positions of diamonds placed in base
@@ -261,7 +276,18 @@ const LEVELS = [{
   npc: '👑',
   npcText: '救命啊！風暴吹垮咗我嘅金字塔！😱 幫我用數學修好佢，我會送你鑽石做獎勵！',
   rewardDiamonds: 5,
+  themeClass: 'theme-egypt',
+  buildVisual: function() { buildPyramid(4) },
   // Questions are auto-generated when level starts
+  questions: [],
+},{
+  name: '古羅馬競技場',
+  emoji: '🏟️',
+  npc: '🦁',
+  npcText: '轟隆！雷電擊中咗競技場嘅拱門！😱 鬥士們冇辦法出場！幫我用數學修好佢！',
+  rewardDiamonds: 5,
+  themeClass: 'theme-rome',
+  buildVisual: function() { renderColosseum() },
   questions: [],
 }]
 
@@ -282,7 +308,7 @@ function generateOptions(correct, count) {
   return [...opts].sort(()=>Math.random()-0.5).map(String)
 }
 
-const QUESTION_GENERATORS = [
+const QUESTION_GENERATORS_EGYPT = [
 
   // 1️⃣ 數磚題：底層 + 第二層
   function genCountBricks() {
@@ -355,9 +381,87 @@ const QUESTION_GENERATORS = [
   },
 ]
 
-function generateQuestions(count = 5) {
-  // Shuffle generators, pick 'count', run each
-  const shuffled = [...QUESTION_GENERATORS].sort(()=>Math.random()-0.5)
+// ===== ROME QUESTION GENERATORS (harder) =====
+const QUESTION_GENERATORS_ROME = [
+
+  // 1️⃣ 雙位數加法（12~25）
+  function genBigAddition() {
+    const a = 10 + Math.floor(Math.random() * 10) // 10~19
+    const b = 5 + Math.floor(Math.random() * 10)  // 5~14
+    const ans = a + b
+    return {
+      q: `競技場有 ${a} 個觀眾，再嚟多 ${b} 個，總共有幾多人？`,
+      hint: `${a} 加 ${b} 係？可以分開計：先加十位再加個位`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 1,
+    }
+  },
+
+  // 2️⃣ 雙位數減法（15~30）
+  function genBigSubtraction() {
+    const a = 18 + Math.floor(Math.random() * 12) // 18~29
+    const b = 5 + Math.floor(Math.random() * 10)  // 5~14
+    const ans = a - b
+    return {
+      q: `🦁 鬥士有 ${a} 分，輸咗俾對方 ${b} 分，仲有幾多分？`,
+      hint: `${a} 減 ${b}，退位減法要小心計！`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 1,
+    }
+  },
+
+  // 3️⃣ 乘數概念（重複加法）
+  function genRepeatedAdd() {
+    const rows = 2 + Math.floor(Math.random() * 3)  // 2~4
+    const seats = 2 + Math.floor(Math.random() * 4) // 2~5
+    const parts = []
+    for(let i=0; i<rows; i++) parts.push(seats)
+    const ans = rows * seats
+    return {
+      q: `競技場有 ${rows} 行座位，每行有 ${seats} 個位，總共有幾多個位？`,
+      hint: `${parts.join('+')} = ？即係 ${rows} 個 ${seats} 加埋`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 2,
+    }
+  },
+
+  // 4️⃣ 大數字文字題（混合加減）
+  function genBigWordProblem() {
+    const start = 20 + Math.floor(Math.random() * 20)  // 20~39
+    const arrive = 5 + Math.floor(Math.random() * 10)   // 5~14
+    const leave = 3 + Math.floor(Math.random() * 8)     // 3~10
+    const ans = start + arrive - leave
+    return {
+      q: `🏟️ 競技場本來有 ${start} 人，嚟咗 ${arrive} 個新觀眾，走咗 ${leave} 個人，𠵱家有幾多人？`,
+      hint: `先加 ${arrive}，再減 ${leave}，一步步嚟`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 2,
+    }
+  },
+
+  // 5️⃣ 兩步題（雙位數加減）
+  function genBigTwoStep() {
+    const a = 12 + Math.floor(Math.random() * 10)  // 12~21
+    const b = 5 + Math.floor(Math.random() * 8)    // 5~12
+    const c = 3 + Math.floor(Math.random() * 6)    // 3~8
+    const ans = a + b - c
+    return {
+      q: `${a} + ${b} - ${c} = ?`,
+      hint: `計咗 ${a}+${b}=？先，再減 ${c}，數字大啲但要小心計！`,
+      answer: String(ans),
+      options: generateOptions(ans, 4),
+      stars: 2,
+    }
+  },
+]
+
+function generateQuestions(count = 5, levelIdx = 0) {
+  const pool = levelIdx === 0 ? QUESTION_GENERATORS_EGYPT : QUESTION_GENERATORS_ROME
+  const shuffled = [...pool].sort(()=>Math.random()-0.5)
   return shuffled.slice(0, count).map(fn => fn())
 }
 
@@ -388,6 +492,40 @@ function buildPyramid(rows=4) {
     }
     wrap.appendChild(row)
   }
+}
+
+// ===== COLOSSEUM LAYOUT =====
+function renderColosseum() {
+  const wrap = document.getElementById('pyramidWrap')
+  wrap.innerHTML = ''
+  // Add gladiator
+  const glad = document.createElement('div')
+  glad.className = 'colosseum-gladiator'
+  glad.textContent = '🛡️'
+  wrap.appendChild(glad)
+  // 3 rows of arches: 2-3-4
+  const rows = [2, 3, 4]
+  rows.forEach((count, r) => {
+    const row = document.createElement('div')
+    row.className = 'colosseum-row'
+    for(let b=0; b<count; b++) {
+      const arch = document.createElement('div')
+      arch.className = 'arch-block'
+      arch.dataset.row = r
+      arch.dataset.col = b
+      // Missing: center of bottom row (r=2, col=1 of 4)
+      const isMissing = (r === 2 && b === 1)
+      if(isMissing) {
+        arch.classList.add('missing')
+        arch.textContent = '❓'
+        arch.id = 'missingBlock'
+      } else {
+        arch.classList.add('filled')
+      }
+      row.appendChild(arch)
+    }
+    wrap.appendChild(row)
+  })
 }
 
 // ===== AUDIO (Web Audio API) =====
@@ -467,6 +605,31 @@ function loadGame() {
 }
 
 // ===== SECRET BASE =====
+function isLevelUnlocked(idx) {
+  if(idx === 0) return true  // First level always unlocked
+  // Must have at least 3 stars on previous level to unlock
+  return (STATE.levelStars[idx-1] || 0) >= 3
+}
+
+function renderBaseLevels() {
+  const container = document.getElementById('baseLevels')
+  container.innerHTML = ''
+  LEVELS.forEach((lv, i) => {
+    const btn = document.createElement('div')
+    btn.className = 'base-level-btn'
+    const unlocked = isLevelUnlocked(i)
+    if(!unlocked) btn.classList.add('locked')
+    const stars = STATE.levelStars[i] || 0
+    const starDisplay = stars > 0 ? ' ⭐'.repeat(Math.min(stars, 5)) : ''
+    btn.textContent = (unlocked ? lv.emoji : '🔒') + ' ' + lv.name + ' ▶' + starDisplay
+    btn.onclick = function() {
+      try { sfxClick() } catch(_) {}
+      if(unlocked && STATE.screen !== 'level') startLevel(i)
+    }
+    container.appendChild(btn)
+  })
+}
+
 function renderBase() {
   const grid = document.getElementById('baseGrid')
   grid.innerHTML = ''
@@ -478,6 +641,7 @@ function renderBase() {
     grid.appendChild(b)
   }
   document.getElementById('diamondCount').textContent = STATE.diamonds
+  renderBaseLevels()
 }
 
 function addDiamondToBase() {
@@ -525,7 +689,7 @@ function startLevel(levelIdx) {
   STATE.currentQuestion = 0
   // Generate fresh set of random questions each time
   const level = LEVELS[levelIdx]
-  level.questions = generateQuestions(5)
+  level.questions = generateQuestions(5, levelIdx)
   showQuestion(levelIdx, 0)
 }
 
@@ -539,8 +703,11 @@ function showQuestion(levelIdx, qIdx) {
   const starCount = STATE.levelStars[levelIdx] || 0
   document.getElementById('levelStars').textContent = '⭐'.repeat(Math.min(starCount, 5)) + '☆'.repeat(Math.max(0, 5-starCount))
   
-  // Build pyramid with missing block
-  buildPyramid(4)
+  // Build level visual (pyramid, colosseum, etc.)
+  const levelScreen = document.getElementById('screen-level')
+  levelScreen.classList.remove('theme-egypt', 'theme-rome')
+  if(level.themeClass) levelScreen.classList.add(level.themeClass)
+  if(level.buildVisual) level.buildVisual()
   
   // Question
   document.getElementById('questionLabel').textContent = q.q
@@ -651,6 +818,23 @@ window.chestClick = function() {
     sfxComplete()
     for(let i=0; i<d; i++) addDiamondToBase()
     _chestLocked = false
+    
+    // Update complete screen with level name
+    const lv = LEVELS[STATE.currentLevel]
+    document.getElementById('completeTitle').textContent = lv.emoji + ' ' + lv.name + '完成！'
+    document.getElementById('completeSub').textContent = 
+      STATE.currentLevel === 0 ? '你拯救咗金字塔！法老王好開心！' : '競技場嘅拱門重建好喇！鬥士們可以出場了！'
+    
+    // Show next level button if there's an unlocked next level
+    const nextBtn = document.getElementById('btnNextLevel')
+    const nextIdx = STATE.currentLevel + 1
+    if(nextIdx < LEVELS.length && isLevelUnlocked(nextIdx)) {
+      nextBtn.textContent = '▶ ' + LEVELS[nextIdx].emoji + ' ' + LEVELS[nextIdx].name
+      nextBtn.style.display = 'inline-block'
+    } else {
+      nextBtn.style.display = 'none'
+    }
+    
     showScreen('complete')
   }, 1000)
 }
@@ -675,6 +859,16 @@ function baseReturn() {
     sfxClick()
     renderBase()
     showScreen('base')
+}
+
+function goNextLevel() {
+  sfxClick()
+  const nextIdx = STATE.currentLevel + 1
+  if(nextIdx < LEVELS.length && isLevelUnlocked(nextIdx)) {
+    startLevel(nextIdx)
+  } else {
+    baseReturn()
+  }
 }
 
 // ===== NAVIGATION =====
